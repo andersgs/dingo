@@ -3,6 +3,7 @@ Some functions to fit a random forest
 '''
 
 import sklearn.ensemble
+import pandas
 
 def learn(X,y, n_trees = 10, criterion = 'entropy', max_features = "sqrt", max_depth = None, min_samples_split = 2, min_samples_leaf = 1, min_weight_fraction_leaf = 0, max_leaf_nodes = None, min_impurity_split = 1e-7, boostrapt = True, oob_score = False, n_jobs = 10, random_state = None, warm_start = False, class_weight = 'balanced_subsample'):
     rf = sklearn.ensemble.RandomForestClassifier(n_estimators = n_trees, \
@@ -22,3 +23,12 @@ def learn(X,y, n_trees = 10, criterion = 'entropy', max_features = "sqrt", max_d
                                                 )
     rf.fit(X, y)
     return rf
+
+def importance(rf, kmers):
+    print(len(rf.feature_importances_))
+    print(len(kmers))
+    d = {"kmer": kmers,
+        "importance": rf.feature_importances_}
+    d = pandas.DataFrame(d)
+    d.sort_values(by = "importance", ascending = 0)
+    return d

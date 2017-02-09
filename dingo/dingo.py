@@ -48,7 +48,8 @@ def main(input_file, ksize, hashsize, min_number, sreads, nbytes, single_end, fo
     X,kmers = jf.join_counts(data)
     # run random forests to learn something
     learn = random_forest.learn(X = X, y = y, n_trees = n_trees, criterion = criterion, max_features = max_features)
-    print(learn.predict(X))
+    kmer_imp = random_forest.importance(learn, kmers)
+    print(kmer_imp.head())
     pass
 
 if __name__ == "__main__":
