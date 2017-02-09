@@ -8,6 +8,7 @@ import shlex
 import subprocess
 import sys
 import pandas
+import numpy as np
 
 jellyfish_min_version = "2.2.4"
 
@@ -20,10 +21,21 @@ def run(cmd):
     out, err = p.communicate()
     return [out, err]
 
-def read_table(sample_id):
-    return pandas.read_csv("{}.txt".format(sample_id), delimiter = '\t', names = ['kmer', '{}'.format(sample_id)])
+def read_table(sample_id, make_binary = True):
+    '''
+    Quickly read a table of kmer counts
+
+    With make_binary, the output is always 0,1. But that can change later
+    '''
+    tab = pandas.read_csv("{}.txt".format(sample_id), delimiter = '\t', names = ['kmer', '{}'.format(sample_id)])
+    if make_binary:
+        tab[sample_id] = np.where(tab[sample_id] > 0, 1, 0)
+    return tab
 
 def join_tables(master, new_table, on):
+    '''
+    Quickly join two tables on column ON
+    '''
     return pandas.merge(master, new_table, on = on, sort = False)
 
 class JellyFish:
@@ -67,4 +79,6 @@ class JellyFish:
         master = read_table(tab[0][0])
         for s in tab[1:]:
             master = join_tables(master, read_table(s[0]), on = 'kmer')
-        return master
+        master = master.transpose()
+        master = master.values
+        return [master[1:], master[0]]
