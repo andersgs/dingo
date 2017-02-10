@@ -57,7 +57,9 @@ def main(input_file, ksize, hashsize, min_number, sreads, nbytes, single_end, fo
     learn = random_forest.learn(X = X, y = y, n_trees = n_trees, criterion = criterion, max_features = max_features)
     kmer_imp = random_forest.importance(learn, kmers)
     print(learn.predict(X))
+    print(learn.predict_log_proba(X))
     print(kmer_imp.head())
+    kmer_imp.to_csv("junk.csv")
     pass
 
 if __name__ == "__main__":
