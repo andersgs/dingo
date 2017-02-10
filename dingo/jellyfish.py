@@ -56,23 +56,30 @@ class JellyFish:
                 raise ValueError("Version of jellyfish found is less than {}, please update to run dingo".format(min_version))
         except ValueError:
             print("Did not find jellyfish on the path.")
-    def __build_input(self, path):
+    def __build_input(self, path, clear = False):
+        if clear:
+            gen = open("generator.txt", 'w')
+        else:
+            gen = open("generator.txt", 'a')
         path = os.path.abspath(path)
         if path.endswith('.gz'):
-            return " <(zcat {})".format(path)
+            gen.write("gunzip -c {}\n".format(path))
         else:
-            return " {}".format(path)
+            gen.write("cat {}\n".format(path))
+        gen.close()
+        return
     def count_all_mers(self, tab, ksize, hash_size, output_file = 'allcount', min_number = 10, simult_read = 2, n_bytes = 1):
-        cmd = self.cmd + ' count -s {} -m {} -F {} --out-counter-len {} -C -L {} -o {}'.format(hash_size, ksize, simult_read, n_bytes, min_number, output_file)
+        cmd = self.cmd + ' count -s {} -m {} -G {} --out-counter-len {} -C -L {} -o {} -g {}'.format(hash_size, ksize, simult_read, n_bytes, min_number, output_file, 'generator.txt')
         for s in tab:
-            cmd += self.__build_input(s[3])
+            self.__build_input(s[3])
         p = run(cmd)
         cmd = self.cmd + ' dump -o {0}.fa {0}'.format(output_file)
         p = run(cmd)
     def count_ind_mers(self, tab, ksize, hash_size, infile = 'allcount.fa', min_number = 10, simult_read = 2, n_bytes = 1):
         for s in tab:
             output_file = s[0]
-            cmd = self.cmd + ' count -s {} -m {} -F {} --out-counter-len {} -C -o {}.jf --if {}'.format(hash_size, ksize, simult_read, n_bytes, output_file, infile) + self.__build_input(s[3])
+            self.__build_input(s[3], clear = True)
+            cmd = self.cmd + ' count -s {} -m {} -G {} --out-counter-len {} -C -o {}.jf --if {} -g {}'.format(hash_size, ksize, simult_read, n_bytes, output_file, infile, "generator.txt")
             p = run(cmd)
             cmd = self.cmd + ' dump -ct -o {0}.txt {0}.jf'.format(output_file)
             p = run(cmd)

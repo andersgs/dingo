@@ -28,5 +28,5 @@ def importance(rf, kmers):
     d = {"kmer": kmers,
         "importance": rf.feature_importances_}
     d = pandas.DataFrame(d)
-    d.sort_values(by = "importance", ascending = 0)
+    d = d.sort_values(by = "importance", ascending = 0)
     return d
