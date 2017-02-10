@@ -5,6 +5,7 @@ The main bits of dingo
 
 # system imports
 import click
+import os
 
 # local imports
 from jellyfish import JellyFish
@@ -21,12 +22,13 @@ import random_forest
 @click.option("-f", "--force", is_flag = True, default = False, help = "Write over previous analysis")
 @click.option("-o", "--outdir", help = "Output folder")
 @click.option("-i", "--input_file", help = "Input file.")
+@click.option("--kmer_fa", help = "A FASTA of kmers to count", default = 'allcount.fa')
 @click.option("-t", "--threads", help = "Number of threads to run Jellyfish", default = 16, show_default = True)
 ### random forest options
 @click.option("-n", "--n_trees", help = "Number of trees to grow", default = 10, show_default = True)
 @click.option("-c", "--criterion", help = 'Criterion to decide on optimal split <entropy|gini>', default = "entropy", show_default = True)
 @click.option("-m", "--max_features", help = "Maximum number of features to consider for each tree", default = "sqrt", show_default = True)
-def main(input_file, ksize, hashsize, min_number, sreads, nbytes, single_end, force, outdir, threads, n_trees, criterion, max_features):
+def main(input_file, ksize, hashsize, min_number, sreads, nbytes, single_end, force, outdir, threads, n_trees, criterion, max_features, kmer_fa):
     # check that necessary software exists, otherwise quit
     jf = JellyFish()
     jf.exists()
@@ -42,7 +44,11 @@ def main(input_file, ksize, hashsize, min_number, sreads, nbytes, single_end, fo
     # create output folder structure --- if can't write quit
 
     # run jellyfish to identify all the kmers
-    jf.count_all_mers(data, ksize, hashsize, threads = threads, min_number = min_number, simult_read = sreads, n_bytes = nbytes)
+    # only run it if necessary
+    if (kmer_fa == None or not os.path.isfile(kmer_fa)):
+        jf.count_all_mers(data, ksize, hashsize, threads = threads, min_number = min_number, simult_read = sreads, n_bytes = nbytes)
+    else:
+        print("Found {}, so skipping counting kmers across all samples".format(kmer_fa))
     # run jellyfish to count kmers in individual isolates
     jf.count_ind_mers(data, ksize, hashsize, threads = threads, min_number = min_number, simult_read = sreads, n_bytes = nbytes)
     # merge individual jellyfish results to generate our input matrix
