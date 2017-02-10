@@ -48,7 +48,7 @@ def main(input_file, ksize, hashsize, min_number, sreads, nbytes, single_end, fo
     if (kmer_fa == None or not os.path.isfile(kmer_fa)):
         jf.count_all_mers(data, ksize, hashsize, threads = threads, min_number = min_number, simult_read = sreads, n_bytes = nbytes)
     else:
-        print("Found {}, so skipping counting kmers across all samples".format(kmer_fa))
+        print("Found {}, so skipping counting kmers across all samples" .format(kmer_fa))
     # run jellyfish to count kmers in individual isolates
     jf.count_ind_mers(data, ksize, hashsize, threads = threads, min_number = min_number, simult_read = sreads, n_bytes = nbytes)
     # merge individual jellyfish results to generate our input matrix
@@ -56,6 +56,7 @@ def main(input_file, ksize, hashsize, min_number, sreads, nbytes, single_end, fo
     # run random forests to learn something
     learn = random_forest.learn(X = X, y = y, n_trees = n_trees, criterion = criterion, max_features = max_features)
     kmer_imp = random_forest.importance(learn, kmers)
+    print(learn.predict(X))
     print(kmer_imp.head())
     pass
 
