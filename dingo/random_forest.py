@@ -25,8 +25,6 @@ def learn(X,y, n_trees = 10, criterion = 'entropy', max_features = "sqrt", max_d
     return rf
 
 def importance(rf, kmers):
-    print(len(rf.feature_importances_))
-    print(len(kmers))
     d = {"kmer": kmers,
         "importance": rf.feature_importances_}
     d = pandas.DataFrame(d)

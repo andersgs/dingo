@@ -17,9 +17,10 @@ def run(cmd):
     Process generator
     '''
     print("Running: {}".format(cmd), file = sys.stderr)
-    p = subprocess.Popen(shlex.split(cmd), stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-    out, err = p.communicate()
-    return [out, err]
+    #p = subprocess.Popen(shlex.split(cmd), stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+    #out, err = p.communicate()
+    p = subprocess.check_call(shlex.split(cmd))
+    return 0
 
 def read_table(sample_id, make_binary = True):
     '''
