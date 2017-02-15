@@ -2,6 +2,7 @@ generator.txt
 allcount*
 *.jf
 Sa31*
+junk.csv
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

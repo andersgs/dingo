@@ -39,6 +39,9 @@ def join_tables(master, new_table, on):
     '''
     return pandas.merge(master, new_table, on = on, sort = False)
 
+def find_var_rows(row):
+    return np.count_nonzero(row) < len(row)
+
 class JellyFish:
     def __init__(self):
         self.cmd = ''
@@ -87,6 +90,8 @@ class JellyFish:
         master = read_table(tab[0][0])
         for s in tab[1:]:
             master = join_tables(master, read_table(s[0]), on = 'kmer')
+        master = master.loc[master.apply(find_var_rows, axis = 1),] # remove kmers present in all samples
         master = master.transpose()
+        print("Found {} variable kmers.".format(master.shape[1]), file = sys.stderr)
         master = master.values
         return [master[1:], master[0]]
