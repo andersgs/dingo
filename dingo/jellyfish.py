@@ -43,9 +43,10 @@ def find_var_rows(row):
     return np.count_nonzero(row) < len(row)
 
 class JellyFish:
-    def __init__(self):
+    def __init__(self, force = False):
         self.cmd = ''
         self.version = ''
+        self.force = force
     def exists(self):
         try:
             p = subprocess.Popen(shlex.split('jellyfish --version'), stdout = subprocess.PIPE, stderr = subprocess.PIPE)
@@ -81,11 +82,14 @@ class JellyFish:
     def count_ind_mers(self, tab, ksize, hash_size, threads = 16, infile = 'allcount.fa', min_number = 10, simult_read = 2, n_bytes = 1):
         for s in tab:
             output_file = s[0]
-            self.__build_input(s[3], clear = True)
-            cmd = self.cmd + ' count -s {} -m {} -G {} --out-counter-len {} -C -o {}.jf --if {} -g {} -t {}'.format(hash_size, ksize, simult_read, n_bytes, output_file, infile, "generator.txt", threads)
-            p = run(cmd)
-            cmd = self.cmd + ' dump -ct -o {0}.txt {0}.jf'.format(output_file)
-            p = run(cmd)
+            if os.path.exists("{}.txt".format(output_file)) and not self.force:
+                print("File {}.txt already exists... Skipping kmer counting!".format(output_file))
+            else:
+                self.__build_input(s[3], clear = True)
+                cmd = self.cmd + ' count -s {} -m {} -G {} --out-counter-len {} -C -o {}.jf --if {} -g {} -t {}'.format(hash_size, ksize, simult_read, n_bytes, output_file, infile, "generator.txt", threads)
+                p = run(cmd)
+                cmd = self.cmd + ' dump -ct -o {0}.txt {0}.jf'.format(output_file)
+                p = run(cmd)
     def join_counts(self, tab):
         master = read_table(tab[0][0])
         for s in tab[1:]:
