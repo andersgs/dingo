@@ -6,6 +6,7 @@ The main bits of dingo
 # system imports
 import click
 import os
+import sys
 
 # local imports
 from jellyfish import JellyFish
@@ -48,17 +49,19 @@ def main(input_file, ksize, hashsize, min_number, sreads, nbytes, single_end, fo
     if (kmer_fa == None or not os.path.isfile(kmer_fa)):
         jf.count_all_mers(data, ksize, hashsize, threads = threads, min_number = min_number, simult_read = sreads, n_bytes = nbytes)
     else:
-        print("Found {}, so skipping counting kmers across all samples" .format(kmer_fa))
+        print("Found {}, so skipping counting kmers across all samples" .format(kmer_fa), file = sys.stderr)
     # run jellyfish to count kmers in individual isolates
-    jf.count_ind_mers(data, ksize, hashsize, threads = threads, min_number = min_number, simult_read = sreads, n_bytes = nbytes)
+    jf.count_ind_mers(data, ksize, hashsize, threads = threads, min_number = min_number, simult_read = sreads, n_bytes = nbytes, force = force)
     # merge individual jellyfish results to generate our input matrix
+    print("Generating kmer table...", file = sys.stderr)
     X,kmers = jf.join_counts(data)
+    print("Learning about the kmers...", file = sys.stderr)
     # run random forests to learn something
     learn = random_forest.learn(X = X, y = y, n_trees = n_trees, criterion = criterion, max_features = max_features)
     kmer_imp = random_forest.importance(learn, kmers)
-    print(learn.predict(X))
-    print(learn.predict_log_proba(X))
-    print(kmer_imp.head())
+    print(learn.predict(X), file = sys.stderr)
+    print(learn.predict_log_proba(X), file = sys.stderr)
+    print(kmer_imp.head(), file = sys.stderr)
     kmer_imp.to_csv("junk.csv")
     pass
 
