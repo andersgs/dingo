@@ -51,7 +51,7 @@ def main(input_file, ksize, hashsize, min_number, sreads, nbytes, single_end, fo
     else:
         print("Found {}, so skipping counting kmers across all samples" .format(kmer_fa), file = sys.stderr)
     # run jellyfish to count kmers in individual isolates
-    jf.count_ind_mers(data, ksize, hashsize, threads = threads, min_number = min_number, simult_read = sreads, n_bytes = nbytes, force = force)
+    jf.count_ind_mers(data, ksize, hashsize, threads = threads, min_number = min_number, simult_read = sreads, n_bytes = nbytes)
     # merge individual jellyfish results to generate our input matrix
     print("Generating kmer table...", file = sys.stderr)
     X,kmers = jf.join_counts(data)
