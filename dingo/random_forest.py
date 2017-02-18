@@ -5,6 +5,15 @@ Some functions to fit a random forest
 import sklearn.ensemble
 import pandas
 
+def test_max_features(max_features):
+    if (max_features not in ['sqrt', 'auto', 'log2', None]):
+        try:
+            max_features = int(max_features)
+        except ValueError:
+            print("max_features has to be an integer or one of 'sqrt', 'auto', 'log2' or None.")
+            raise
+    return max_features
+
 def learn(X,y, n_trees = 10, criterion = 'entropy', max_features = "sqrt", max_depth = None, min_samples_split = 2, min_samples_leaf = 1, min_weight_fraction_leaf = 0, max_leaf_nodes = None, min_impurity_split = 1e-7, boostrapt = True, oob_score = False, n_jobs = 10, random_state = None, warm_start = False, class_weight = 'balanced_subsample'):
     rf = sklearn.ensemble.RandomForestClassifier(n_estimators = n_trees, \
                                                 criterion = criterion, \

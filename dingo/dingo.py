@@ -34,6 +34,9 @@ def main(input_file, ksize, hashsize, min_number, sreads, nbytes, single_end, fo
     jf = JellyFish()
     jf.exists()
 
+    # do some parameter checking
+    max_features = random_forest.test_max_features(max_features)
+
     # check that outdir already exists, if NOT force, then quit
 
     # load input file --- check that paths exist otherwise quit
