@@ -9,8 +9,11 @@ import subprocess
 import sys
 import pandas
 import numpy as np
+import progressbar
 
 jellyfish_min_version = "2.2.4"
+
+bar = progressbar.ProgressBar()
 
 def run(cmd):
     '''
@@ -80,7 +83,7 @@ class JellyFish:
         cmd = self.cmd + ' dump -o {0}.fa {0}'.format(output_file)
         p = run(cmd)
     def count_ind_mers(self, tab, ksize, hash_size, threads = 16, infile = 'allcount.fa', min_number = 10, simult_read = 2, n_bytes = 1):
-        for s in tab:
+        for s in bar(tab):
             output_file = s[0]
             if os.path.exists("{}.txt".format(output_file)) and not self.force:
                 print("File {}.txt already exists... Skipping kmer counting!".format(output_file))
