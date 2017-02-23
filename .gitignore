@@ -3,6 +3,7 @@ allcount*
 *.jf
 Sa31*
 junk.csv
+*.pickle
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
