@@ -31,7 +31,8 @@ def learn(X,y, n_trees = 10, criterion = 'entropy', max_features = "sqrt", max_d
                                                 n_jobs = n_jobs, \
                                                 random_state = random_state, \
                                                 warm_start = warm_start, \
-                                                class_weight = class_weight \
+                                                class_weight = class_weight, \
+                                                verbose = 1
                                                 )
     rf.fit(X, y)
     return rf
