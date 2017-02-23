@@ -27,7 +27,8 @@ setup(name='dingo',
       packages=['dingo'],
       install_requires=[
         'click',
-        'pandas'
+        'pandas',
+        'progressbar2'
       ],
       test_suite='nose.collector',
       tests_require=[],
