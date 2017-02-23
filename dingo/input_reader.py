@@ -32,7 +32,7 @@ def read(filename):
     '''
     fin = open_file(filename)
     # try to guess the field delimiter
-    dialect = csv.Sniffer().sniff(fin.read(1024))
+    dialect = csv.Sniffer().sniff(fin.read(2048))
     fin.seek(0)
     reader = csv.reader(fin, delimiter = dialect.delimiter, skipinitialspace = True)
     tab = [row for row in reader]
