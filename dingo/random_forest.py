@@ -17,7 +17,7 @@ def test_max_features(max_features):
             raise
     return max_features
 
-def learn(X,y, n_trees = 10, criterion = 'entropy', max_features = "sqrt", max_depth = None, min_samples_split = 2, min_samples_leaf = 1, min_weight_fraction_leaf = 0, max_leaf_nodes = None, min_impurity_split = 1e-7, boostrapt = True, oob_score = False, n_jobs = 10, random_state = None, warm_start = False, class_weight = 'balanced_subsample'):
+def learn(X,y, n_trees = 10, criterion = 'entropy', max_features = "sqrt", max_depth = None, min_samples_split = 2, min_samples_leaf = 1, min_weight_fraction_leaf = 0, max_leaf_nodes = None, min_impurity_split = 1e-7, bootstrap = False, oob_score = False, n_jobs = 10, random_state = None, warm_start = False, class_weight = 'balanced_subsample'):
     rf = sklearn.ensemble.RandomForestClassifier(n_estimators = n_trees, \
                                                 criterion = criterion, \
                                                 max_features = max_features, \
@@ -27,6 +27,7 @@ def learn(X,y, n_trees = 10, criterion = 'entropy', max_features = "sqrt", max_d
                                                 min_weight_fraction_leaf = min_weight_fraction_leaf, \
                                                 max_leaf_nodes = max_leaf_nodes, \
                                                 min_impurity_split = min_impurity_split, \
+                                                bootstrap = bootstrap, \
                                                 oob_score = oob_score, \
                                                 n_jobs = n_jobs, \
                                                 random_state = random_state, \
