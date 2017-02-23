@@ -25,11 +25,12 @@ import random_forest
 @click.option("-i", "--input_file", help = "Input file.")
 @click.option("--kmer_fa", help = "A FASTA of kmers to count", default = 'allcount.fa')
 @click.option("-t", "--threads", help = "Number of threads to run Jellyfish", default = 16, show_default = True)
+@click.option("-p","pickled_matrix", help = "Use a pickeled matrix", default = ".kmer_table.pickle", show_default = True)
 ### random forest options
 @click.option("-n", "--n_trees", help = "Number of trees to grow", default = 10, show_default = True)
 @click.option("-c", "--criterion", help = 'Criterion to decide on optimal split <entropy|gini>', default = "entropy", show_default = True)
 @click.option("-m", "--max_features", help = "Maximum number of features to consider for each tree", default = "sqrt", show_default = True)
-def main(input_file, ksize, hashsize, min_number, sreads, nbytes, single_end, force, outdir, threads, n_trees, criterion, max_features, kmer_fa):
+def main(input_file, ksize, hashsize, min_number, sreads, nbytes, single_end, force, outdir, threads, n_trees, criterion, max_features, kmer_fa, pickled_matrix):
     # check that necessary software exists, otherwise quit
     jf = JellyFish()
     jf.exists()
@@ -49,21 +50,26 @@ def main(input_file, ksize, hashsize, min_number, sreads, nbytes, single_end, fo
 
     # run jellyfish to identify all the kmers
     # only run it if necessary
-    if (kmer_fa == None or not os.path.isfile(kmer_fa)):
-        jf.count_all_mers(data, ksize, hashsize, threads = threads, min_number = min_number, simult_read = sreads, n_bytes = nbytes)
+    if (os.path.exists(pickled_matrix) and not force):
+        print("Found a pickled kmer matrix, going to use it...")
+        X,kmers = jf.load_kmertable(pickle_file = pickled_matrix)
     else:
-        print("Found {}, so skipping counting kmers across all samples" .format(kmer_fa), file = sys.stderr)
-    # run jellyfish to count kmers in individual isolates
-    jf.count_ind_mers(data, ksize, hashsize, threads = threads, min_number = min_number, simult_read = sreads, n_bytes = nbytes)
-    # merge individual jellyfish results to generate our input matrix
-    print("Generating kmer table...", file = sys.stderr)
-    X,kmers = jf.join_counts(data)
+        if (kmer_fa == None or not os.path.isfile(kmer_fa)):
+            jf.count_all_mers(data, ksize, hashsize, threads = threads, min_number = min_number, simult_read = sreads, n_bytes = nbytes)
+        else:
+            print("Found {}, so skipping counting kmers across all samples" .format(kmer_fa), file = sys.stderr)
+        # run jellyfish to count kmers in individual isolates
+        jf.count_ind_mers(data, ksize, hashsize, threads = threads, min_number = min_number, simult_read = sreads, n_bytes = nbytes)
+        # merge individual jellyfish results to generate our input matrix
+        print("Generating kmer table...", file = sys.stderr)
+        X,kmers = jf.join_counts(data)
     print("Learning about the kmers...", file = sys.stderr)
     # run random forests to learn something
     learn = random_forest.learn(X = X, y = y, n_trees = n_trees, criterion = criterion, max_features = max_features)
     print("Computing importance of kmers...", file = sys.stderr)
     kmer_imp = random_forest.importance(learn, kmers)
-    #print(learn.predict(X), file = sys.stderr)
+    print("Making predictions...", file = sys.stderr)
+    print(learn.predict(X), file = sys.stderr)
     #print(learn.predict_log_proba(X), file = sys.stderr)
     print(kmer_imp.head(), file = sys.stderr)
     kmer_imp.to_csv("junk.csv")

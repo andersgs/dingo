@@ -90,12 +90,18 @@ class JellyFish:
                 p = run(cmd)
                 cmd = self.cmd + ' dump -ct -o {0}.txt {0}.jf'.format(output_file)
                 p = run(cmd)
-    def join_counts(self, tab):
+    def join_counts(self, tab, pickle = True):
         master = read_table(tab[0][0])
         for s in tab[1:]:
             master = join_tables(master, read_table(s[0]), on = 'kmer')
         master = master.loc[master.apply(find_var_rows, axis = 1),] # remove kmers present in all samples
         master = master.transpose()
         print("Found {} variable kmers.".format(master.shape[1]), file = sys.stderr)
+        if pickle:
+            master.to_pickle(".kmer_table.pickle")
+        master = master.values
+        return [master[1:], master[0]]
+    def load_kmertable(self, pickle_file = ".kmer_table.pickle"):
+        master = pandas.read_pickle(pickle_file)
         master = master.values
         return [master[1:], master[0]]
