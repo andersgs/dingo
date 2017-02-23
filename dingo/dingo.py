@@ -61,9 +61,10 @@ def main(input_file, ksize, hashsize, min_number, sreads, nbytes, single_end, fo
     print("Learning about the kmers...", file = sys.stderr)
     # run random forests to learn something
     learn = random_forest.learn(X = X, y = y, n_trees = n_trees, criterion = criterion, max_features = max_features)
+    print("Computing importance of kmers...", file = sys.stderr)
     kmer_imp = random_forest.importance(learn, kmers)
-    print(learn.predict(X), file = sys.stderr)
-    print(learn.predict_log_proba(X), file = sys.stderr)
+    #print(learn.predict(X), file = sys.stderr)
+    #print(learn.predict_log_proba(X), file = sys.stderr)
     print(kmer_imp.head(), file = sys.stderr)
     kmer_imp.to_csv("junk.csv")
     pass

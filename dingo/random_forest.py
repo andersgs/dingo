@@ -4,6 +4,9 @@ Some functions to fit a random forest
 
 import sklearn.ensemble
 import pandas
+import progressbar
+
+bar = progressbar.ProgressBar()
 
 def test_max_features(max_features):
     if (max_features not in ['sqrt', 'auto', 'log2', None]):
@@ -34,8 +37,12 @@ def learn(X,y, n_trees = 10, criterion = 'entropy', max_features = "sqrt", max_d
     return rf
 
 def importance(rf, kmers):
+    importance = rf.estimators_[0].feature_importances_
+    for est in bar(rf.estimators_[1:]):
+        importance += est.feature_importances_
+    importance = importance/rf.n_estimators
     d = {"kmer": kmers,
-        "importance": rf.feature_importances_}
+        "importance": importance}
     d = pandas.DataFrame(d)
     d = d.sort_values(by = "importance", ascending = 0)
     d = d.loc[d.importance > 0]
