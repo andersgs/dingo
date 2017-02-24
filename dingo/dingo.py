@@ -30,7 +30,10 @@ import random_forest
 @click.option("-n", "--n_trees", help = "Number of trees to grow", default = 10, show_default = True)
 @click.option("-c", "--criterion", help = 'Criterion to decide on optimal split <entropy|gini>', default = "entropy", show_default = True)
 @click.option("-m", "--max_features", help = "Maximum number of features to consider for each tree", default = "sqrt", show_default = True)
-def main(input_file, ksize, hashsize, min_number, sreads, nbytes, single_end, force, outdir, threads, n_trees, criterion, max_features, kmer_fa, pickled_matrix):
+@click.option("--n_tries", help = "How many times to update the model", default = 1, show_default = True)
+@click.option("--n_workers", help = "Divide the work of calculating the importance to how many workers?", default = 8, show_default = True)
+@click.option("--n_inc", help = "When incrementing the number of trees, try how many new ones?", default = 50, show_default = True)
+def main(input_file, ksize, hashsize, min_number, sreads, nbytes, single_end, force, outdir, threads, n_trees, criterion, max_features, kmer_fa, pickled_matrix, n_tries, n_workers, n_inc):
     # check that necessary software exists, otherwise quit
     jf = JellyFish()
     jf.exists()
@@ -67,12 +70,15 @@ def main(input_file, ksize, hashsize, min_number, sreads, nbytes, single_end, fo
     # run random forests to learn something
     learn = random_forest.learn(X = X, y = y, n_trees = n_trees, criterion = criterion, max_features = max_features)
     print("Computing importance of kmers...", file = sys.stderr)
-    kmer_imp = random_forest.importance(learn, kmers)
+    # kmer_imp = random_forest.importance(learn, kmers)
+    kmer_parallel = random_forest.parallel_importance(learn, kmers, n_workers = n_workers)
+    inc_learn, kmer_imp = random_forest.incremental_learn(learn, kmer_parallel, X, y, n_tries = n_tries, n_workers = n_workers, n_inc = n_inc)
+    rank_kimp = random_forest.rank_importance(kmer_imp)
     print("Making predictions...", file = sys.stderr)
     print(learn.predict(X), file = sys.stderr)
     #print(learn.predict_log_proba(X), file = sys.stderr)
-    print(kmer_imp.head(), file = sys.stderr)
-    kmer_imp.to_csv("junk.csv")
+    print(rank_kimp.head(), file = sys.stderr)
+    rank_kimp.to_csv("junk.csv")
     pass
 
 if __name__ == "__main__":
